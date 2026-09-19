@@ -26,22 +26,17 @@ if __name__ == "__main__":
     chunks = chunk_text(text)
     print(f"Total chunks: {len(chunks)}")
 
-    # Embedding model load karo
     print("Loading embedding model...")
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # ChromaDB client banao (local, disk pe save hoga)
     client = chromadb.PersistentClient(path="./chroma_db")
     
-    # Collection banao (ya agar already hai toh usko use karo)
     collection = client.get_or_create_collection(name="notes")
 
-    # Purana data clear karo (taaki dobara run karne pe duplicate na ho)
     existing = collection.get()
     if existing['ids']:
         collection.delete(ids=existing['ids'])
 
-    # Chunks ko embeddings ke saath store karo
     print("Storing chunks in ChromaDB...")
     embeddings = model.encode(chunks).tolist()
     ids = [f"chunk_{i}" for i in range(len(chunks))]
@@ -59,7 +54,7 @@ if __name__ == "__main__":
     query_embedding = model.encode([query]).tolist()
     results = collection.query(
         query_embeddings=query_embedding,
-        n_results=2  # top 2 most similar chunks
+        n_results=2 
     )
 
     print("\nTop matching chunks:")
